@@ -9,7 +9,7 @@ package Raisin::Encoder::JSON;
 
 use JSON::MaybeXS qw();
 
-my $json = JSON::MaybeXS->new(utf8 => 1);
+my $json = JSON::MaybeXS->new(utf8 => 1, pretty => 1, canonical => 1); # lmasarati: adding pretty and canonical
 
 sub detectable_by { [qw(application/json text/x-json text/json json)] }
 
