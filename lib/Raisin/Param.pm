@@ -26,6 +26,8 @@ use Raisin::Util;
 my @ATTRIBUTES = qw(name type default regex desc coerce);
 my @LOCATIONS = qw(path formData body header query);
 
+our $VALIDATE_LASTERROR; # lmasarati
+
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
@@ -107,6 +109,7 @@ sub validate {
     # Only optional parameters can have default value
     if ($self->required && !defined($$ref_value)) {
         Raisin::log(warn => '`%s` is required', $self->name) unless $quiet;
+        $VALIDATE_LASTERROR = sprintf ('`%s` is required', $self->name); # lmasarati
         return;
     }
 
@@ -134,6 +137,7 @@ sub validate {
             Raisin::log(warn => 'Param `%s` didn\'t pass constraint `%s` with value "%s"',
                 $self->name, $self->type->name, $$ref_value);
         }
+        $VALIDATE_LASTERROR = sprintf ('Param `%s` didn\'t pass constraint `%s` with value "%s"', $self->name, $self->type->name, $$ref_value); # lmasarati
         return;
     }
 
@@ -155,6 +159,7 @@ sub validate {
             Raisin::log(warn => 'Param `%s` didn\'t match regex `%s` with value "%s"',
                 $self->name, $self->regex, $$ref_value);
         }
+        $VALIDATE_LASTERROR = sprintf ('Param `%s` didn\'t match regex `%s` with value "%s"', $self->name, $self->regex, $$ref_value); # lmasarati
         return;
     }
 
