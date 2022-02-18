@@ -41,7 +41,16 @@ sub call {
         $env->{'raisinx.decoder'} = $format;
 
         my $d = Plack::Util::load_class($self->decoder->for($format));
-        $env->{'raisinx.body_params'} = $d->deserialize($req);
+        # lmasarati - begin: trap deserialization errors and return BAD REQUEST as plain text
+        eval {
+            $env->{'raisinx.body_params'} = $d->deserialize($req);
+        };
+        if ($@)
+        {
+            Raisin::log(info => "deserialize error: $@");
+            return Plack::Response->new(HTTP_BAD_REQUEST, undef, "deserialize error: $@")->finalize;
+        }
+        # lmasarati - end
     }
 
     my $format = $self->negotiate_format($req);
