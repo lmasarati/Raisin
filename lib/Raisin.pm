@@ -190,6 +190,8 @@ sub psgi {
         if (!$req->prepare_params($route->params, $route->named)) {
             $res->status(HTTP_BAD_REQUEST);
             $res->body('Invalid Parameters');
+            $self->hook('failed_validation')->($self); # lmasarati
+            undef ($Raisin::Param::VALIDATE_LASTERROR); # lmasarati
             return $res->finalize;
         }
 
@@ -937,7 +939,7 @@ See L<Type::Tiny::Manual> and L<Moose::Manual::Types>.
 =head1 HOOKS
 
 Those blocks can be executed before or/and after every API call, using
-C<before>, C<after>, C<before_validation> and C<after_validation>.
+C<before>, C<after>, C<before_validation>, C<failed_validation> and C<after_validation>.
 
 Callbacks execute in the following order:
 
@@ -946,6 +948,8 @@ Callbacks execute in the following order:
 =item * before
 
 =item * before_validation
+
+=item * failed_validation
 
 =item * after_validation
 
@@ -966,6 +970,9 @@ The block applies to every API call
     };
 
 Steps C<after_validation> and C<after> are executed only if validation succeeds.
+
+Step C<failed_validation> is executed only if validation fails, last validation error is
+available in C<$Raisin::Param::VALIDATE_LASTERROR>.
 
 Every callback has only one argument as an input parameter which is L<Raisin>
 object. For more information of available methods see L<Raisin/CONTROLLER>.
